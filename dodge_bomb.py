@@ -1,7 +1,7 @@
 import os
 import sys
 import pygame as pg
-
+import random
 
 WIDTH, HEIGHT = 1100, 650
 DELTA={pg.K_UP:(0,-5),pg.K_DOWN:(0,+5),pg.K_LEFT:(-5,0),pg.K_RIGHT:(+5,0)}
@@ -16,14 +16,24 @@ def main():
     kk_rct = kk_img.get_rect()
     kk_rct.center = 300, 200
     clock = pg.time.Clock()
+
+    #練習2
+    bb_img = pg.Surface((20, 20))
+    pg.draw.circle(bb_img, (255, 0, 0), (10, 10), 10)
+    bb_img.set_colorkey((0, 0, 0))
+    bb_rct = bb_img.get_rect()
+    bb_rct.centerx = random.randint(0,WIDTH)
+    bb_rct.centery = random.randint(0,HEIGHT)
+    vx,vy = +5, +5
+
     tmr = 0
     while True:
         for event in pg.event.get():
             if event.type == pg.QUIT: 
                 return
         screen.blit(bg_img, [0, 0]) 
-
-        
+        bb_rct.move_ip(vx, vy)  # 爆弾を移動させる
+        screen.blit(bb_img, bb_rct)  # 爆弾を表示させる
         key_lst = pg.key.get_pressed()
         sum_mv = [0, 0]
         #if key_lst[pg.K_UP]:
