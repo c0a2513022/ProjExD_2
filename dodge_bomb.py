@@ -41,6 +41,11 @@ def gameover(screen: pg.Surface) -> None:
     return
 #2.時間とともに爆弾が拡大，加速する関数
 def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
+    """
+    時間とともに爆弾が拡大，加速する関数
+    引数:Surface
+    返り値:爆弾の大きさ、速さ
+    """
     bb_imgs=[]
     for r in range(1, 11):
         bb_img = pg.Surface((20*r, 20*r))
@@ -54,6 +59,7 @@ def get_kk_imgs(kk_img: pg.Surface) -> dict[tuple[int, int], pg.Surface]:
     """
     こうかとんの方向転換
     引数:kk_img
+    戻り値:こうかとんの方向を保存した辞書
     """
     img0 = kk_img # 左向き
     img1 = pg.transform.flip(img0, True, False) #右向き
