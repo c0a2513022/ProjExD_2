@@ -38,7 +38,6 @@ def gameover(screen: pg.Surface) -> None:
     screen.blit(black_image, [0, 0])
     pg.display.update()  # 画面再読み込み
     time.sleep(5)  # 5秒ストップ
-    
     return
 #2.時間とともに爆弾が拡大，加速する関数
 def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
@@ -52,6 +51,10 @@ def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
     return bb_imgs, bb_accs
 #3.飛ぶ方向に従ってこうかとん画像を切り替える
 def get_kk_imgs(kk_img: pg.Surface) -> dict[tuple[int, int], pg.Surface]:
+    """
+    こうかとんの方向転換
+    引数:kk_img
+    """
     img0 = kk_img # 左向き
     img1 = pg.transform.flip(img0, True, False) #右向き
 
