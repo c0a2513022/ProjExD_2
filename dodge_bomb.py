@@ -2,6 +2,7 @@ import os
 import sys
 import pygame as pg
 import random
+import time
 
 WIDTH, HEIGHT = 1100, 650
 DELTA={pg.K_UP:(0,-5),pg.K_DOWN:(0,+5),pg.K_LEFT:(-5,0),pg.K_RIGHT:(+5,0)}
@@ -19,7 +20,26 @@ def check_bound(rct:pg.Rect) -> tuple[bool,bool]:
     if rct.top<0 or HEIGHT < rct.bottom:
         tate = False
     return yoko,tate
-
+#1.gameover
+def gameover(screen: pg.Surface) -> None:
+    """
+    ゲームオーバー画面を表示する関数
+    引数:screen
+    """
+    black_image = pg.Surface((1100, 650))  # 黒surface
+    pg.draw.rect(black_image, (0,0,0), (0, 0, 1100, 650))
+    black_image.set_alpha(200)  # 透明度
+    fonto = pg.font.Font(None, 80)
+    go_txt = fonto.render("Game Over", True, (255, 255, 255))
+    black_image.blit(go_txt, [400, 300])
+    kk_go_img = pg.image.load("fig/8.png")
+    black_image.blit(kk_go_img, [330, 290])  # Game Over 表示
+    black_image.blit(kk_go_img, [730, 290])  # こうかとん表示
+    screen.blit(black_image, [0, 0])
+    pg.display.update()  # 画面再読み込み
+    time.sleep(5)  # 5秒ストップ
+    
+    return
 #2.時間とともに爆弾が拡大，加速する関数
 def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
     bb_imgs=[]
@@ -33,7 +53,7 @@ def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
 #3.飛ぶ方向に従ってこうかとん画像を切り替える
 def get_kk_imgs(kk_img: pg.Surface) -> dict[tuple[int, int], pg.Surface]:
     img0 = kk_img # 左向き
-    img1 = pg.transform.flip(img0, True, False) #左右反転
+    img1 = pg.transform.flip(img0, True, False) #右向き
 
     kk_dict = {
         ( 0,  0): pg.transform.rotozoom(img1,   0, 1.0), # 初期
@@ -45,6 +65,7 @@ def get_kk_imgs(kk_img: pg.Surface) -> dict[tuple[int, int], pg.Surface]:
         (-5, +5): pg.transform.rotozoom(img0,  45, 1.0), # 左下
         ( 0, +5): pg.transform.rotozoom(img1, -90, 1.0), # 下
         (+5, +5): pg.transform.rotozoom(img1, -45, 1.0), # 右下
+    
     }
     return kk_dict
 
@@ -109,6 +130,7 @@ def main():
 
         #ゲームオーバー
         if kk_rct.colliderect(bb_rct):  # こうかとんと爆弾の衝突判定
+            gameover(screen)
             print("ゲームオーバー")
             return  # ゲームオーバーの意味でmain関数から出る
         
