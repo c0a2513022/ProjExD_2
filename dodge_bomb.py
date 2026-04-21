@@ -7,6 +7,19 @@ WIDTH, HEIGHT = 1100, 650
 DELTA={pg.K_UP:(0,-5),pg.K_DOWN:(0,+5),pg.K_LEFT:(-5,0),pg.K_RIGHT:(+5,0)}
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
+def check_bound(rct:pg.Rect) -> tuple[bool,bool]:
+    """
+    引数:こうかとんRectまたは爆弾Rect
+    戻り値：横方向判定、縦方向判定
+    画面内ならTrue，画面外ならFalse
+    """
+    yoko,tate=True,True
+    if rct.left<0 or WIDTH < rct.right:
+        yoko=False
+    if rct.top<0 or HEIGHT < rct.bottom:
+        tate = False
+    return yoko,tate
+
 
 def main():
     pg.display.set_caption("逃げろ！こうかとん")
@@ -36,6 +49,7 @@ def main():
         screen.blit(bb_img, bb_rct)  # 爆弾を表示させる
         key_lst = pg.key.get_pressed()
         sum_mv = [0, 0]
+
         #if key_lst[pg.K_UP]:
         #    sum_mv[1] -= 5
         #if key_lst[pg.K_DOWN]:
@@ -44,17 +58,29 @@ def main():
         #    sum_mv[0] -= 5
         #if key_lst[pg.K_RIGHT]:
         #    sum_mv[0] += 5
+
         for key,mv in DELTA.items():
             if key_lst[key]:
                 sum_mv[0]+=mv[0]
                 sum_mv[1]+=mv[1]
-
-    
         kk_rct.move_ip(sum_mv)
+
+        if check_bound(kk_rct)!=(True,True):
+            kk_rct.move_ip(-sum_mv[0],-sum_mv[1])
+
+        bb_rct.move_ip(vx,vy)
+        yoko, tate = check_bound(bb_rct)
+        if not yoko:  # 横方向の判定
+            vx *= -1
+        if not tate:  # 縦方向の判定
+            vy *= -1
+        
         screen.blit(kk_img, kk_rct)
         pg.display.update()
         tmr += 1
         clock.tick(50)
+
+
 
 
 if __name__ == "__main__":
