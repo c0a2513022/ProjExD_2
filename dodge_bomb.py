@@ -20,6 +20,16 @@ def check_bound(rct:pg.Rect) -> tuple[bool,bool]:
         tate = False
     return yoko,tate
 
+#2.時間とともに爆弾が拡大，加速する関数
+def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
+    bb_imgs=[]
+    for r in range(1, 11):
+        bb_img = pg.Surface((20*r, 20*r))
+        pg.draw.circle(bb_img, (255, 0, 0), (10*r, 10*r), 10*r)
+        bb_img.set_colorkey((0, 0, 0))
+        bb_imgs.append(bb_img)
+    bb_accs = [a for a in range(1, 11)]
+    return bb_imgs, bb_accs
 
 def main():
     pg.display.set_caption("逃げろ！こうかとん")
@@ -30,52 +40,55 @@ def main():
     kk_rct.center = 300, 200
     clock = pg.time.Clock()
 
-    #練習2
-    bb_img = pg.Surface((20, 20))
-    pg.draw.circle(bb_img, (255, 0, 0), (10, 10), 10)
-    bb_img.set_colorkey((0, 0, 0))
+    #爆弾動き方
+    bb_imgs, bb_accs = init_bb_imgs() # 関数を呼び出す
+    bb_img = bb_imgs[0] # 最初は一番小さい爆弾
     bb_rct = bb_img.get_rect()
-    bb_rct.centerx = random.randint(0,WIDTH)
-    bb_rct.centery = random.randint(0,HEIGHT)
-    vx,vy = +5, +5
+    bb_rct.centerx = random.randint(0, WIDTH)
+    bb_rct.centery = random.randint(0, HEIGHT)
+    vx, vy = +5, +5
 
     tmr = 0
     while True:
         for event in pg.event.get():
             if event.type == pg.QUIT: 
                 return
+        #背景 
         screen.blit(bg_img, [0, 0]) 
-        bb_rct.move_ip(vx, vy)  # 爆弾を移動させる
-        screen.blit(bb_img, bb_rct)  # 爆弾を表示させる
-        key_lst = pg.key.get_pressed()
-        sum_mv = [0, 0]
 
-        #if key_lst[pg.K_UP]:
-        #    sum_mv[1] -= 5
-        #if key_lst[pg.K_DOWN]:
-        #    sum_mv[1] += 5
-        #if key_lst[pg.K_LEFT]:
-        #    sum_mv[0] -= 5
-        #if key_lst[pg.K_RIGHT]:
-        #    sum_mv[0] += 5
+        #爆弾
+        avx = vx*bb_accs[min(tmr//500, 9)] #このavxとavyをmove_ipメソッドに渡す
+        avy = vy*bb_accs[min(tmr//500, 9)]
+        bb_img = bb_imgs[min(tmr//500, 9)]
+        bb_rct.move_ip(avx, avy)
 
-        for key,mv in DELTA.items():
-            if key_lst[key]:
-                sum_mv[0]+=mv[0]
-                sum_mv[1]+=mv[1]
-        kk_rct.move_ip(sum_mv)
-
-        if check_bound(kk_rct)!=(True,True):
-            kk_rct.move_ip(-sum_mv[0],-sum_mv[1])
-
-        bb_rct.move_ip(vx,vy)
+        #跳ね返り
         yoko, tate = check_bound(bb_rct)
         if not yoko:  # 横方向の判定
             vx *= -1
         if not tate:  # 縦方向の判定
             vy *= -1
+
+        #こうかとん移動
+        key_lst = pg.key.get_pressed()
+        sum_mv = [0, 0]
+        for key,mv in DELTA.items():
+            if key_lst[key]:
+                sum_mv[0]+=mv[0]
+                sum_mv[1]+=mv[1]
+        kk_rct.move_ip(sum_mv)
+        if check_bound(kk_rct)!=(True,True):
+            kk_rct.move_ip(-sum_mv[0],-sum_mv[1])
+
+        #ゲームオーバー
+        if kk_rct.colliderect(bb_rct):  # こうかとんと爆弾の衝突判定
+            print("ゲームオーバー")
+            return  # ゲームオーバーの意味でmain関数から出る
         
+        #表示
         screen.blit(kk_img, kk_rct)
+        screen.blit(bb_img, bb_rct)
+
         pg.display.update()
         tmr += 1
         clock.tick(50)
